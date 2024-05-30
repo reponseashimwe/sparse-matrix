@@ -1,12 +1,31 @@
 import os
 
 class SparseMatrix:
+    """
+    This class represents a sparse matrix. Sparse matrices store only the non-zero elements
+    and their corresponding positions to save memory.
+    """
     def __init__(self, numRows=None, numCols=None):
+        """
+        This function initializes a sparse matrix object.
+
+        Args:
+            numRows (int, optional): The number of rows in the matrix. Defaults to None.
+            numCols (int, optional): The number of columns in the matrix. Defaults to None.
+        """
         self.numRows = numRows
         self.numCols = numCols
         self.matrix = {}
 
     def loadFromMatrix(self, numRows, numCols, matrix):
+        """
+        This function loads a dense matrix (represented as a list of lists) into the sparse matrix object.
+
+        Args:
+            numRows (int): The number of rows in the matrix.
+            numCols (int): The number of columns in the matrix.
+            matrix (list of lists): A dense representation of the matrix.
+        """
         self.numRows = numRows
         self.numCols = numCols
         self.matrix = {}
@@ -17,15 +36,42 @@ class SparseMatrix:
                     self.matrix[(i, j)] = matrix[i][j]
 
     def getElement(self, currRow, currCol):
+        """
+        This function retrieves the value of an element in the sparse matrix.
+
+        Args:
+            currRow (int): The row index of the element.
+            currCol (int): The column index of the element.
+
+        Returns:
+            int: The value of the element at the specified position. If the element is zero, returns 0.
+        """
         return self.matrix.get((currRow, currCol), 0)
 
     def setElement(self, currRow, currCol, value):
+        """
+        This function sets the value of an element in the sparse matrix.
+
+        Args:
+            currRow (int): The row index of the element.
+            currCol (int): The column index of the element.
+            value (int): The value to set at the specified position.
+        """
         if value != 0:
             self.matrix[(currRow, currCol)] = value
         elif (currRow, currCol) in self.matrix:
             del self.matrix[(currRow, currCol)]
 
     def add(self, other):
+        """
+        This function adds two sparse matrices and returns the resulting sparse matrix.
+
+        Args:
+            other (SparseMatrix): The other sparse matrix to add.
+
+        Returns:
+            SparseMatrix: The resulting sparse matrix after addition.
+        """
         result = SparseMatrix(numRows=self.numRows, numCols=self.numCols)
 
         # Merge self and other matrices
@@ -39,6 +85,15 @@ class SparseMatrix:
 
 
     def multiply(self, other):
+        """
+        This function multiplies two sparse matrices and returns the resulting sparse matrix.
+
+        Args:
+            other (SparseMatrix): The other sparse matrix to multiply with.
+
+        Returns:
+            SparseMatrix: The resulting sparse matrix after multiplication.
+        """
         result = SparseMatrix(numRows=self.numRows, numCols=other.numCols)
 
         for (row1, col1), value1 in self.matrix.items():
@@ -49,6 +104,15 @@ class SparseMatrix:
         return self.removeZerosFromResult(result)
 
     def subtract(self, other):
+        """
+        This function subtracts a sparse matrix from the current sparse matrix and returns the resulting sparse matrix.
+
+        Args:
+            other (SparseMatrix): The sparse matrix to subtract from the current matrix.
+
+        Returns:
+            SparseMatrix: The resulting sparse matrix after subtraction.
+        """
         result = SparseMatrix(numRows=self.numRows, numCols=self.numCols)
 
         # Merge self and other matrices
@@ -61,6 +125,15 @@ class SparseMatrix:
         return self.removeZerosFromResult(result)
 
     def removeZerosFromResult(self, result):
+        """
+        This function removes zero elements from a sparse matrix.
+
+        Args:
+            result (SparseMatrix): The sparse matrix to remove zeros from.
+
+        Returns:
+            SparseMatrix: The sparse matrix with zeros removed.
+        """
         for (row, col), value in list(result.matrix.items()):
             if value == 0:
                 del result.matrix[(row, col)]
@@ -68,17 +141,38 @@ class SparseMatrix:
         return result
 
 def isEqual(numRows1, numRows2, numCols1, numCols2, direction):
-    print(numRows1, numCols1)
-    print(numRows2, numCols2)
+    """
+    This function compares the dimensions of two matrices and checks for equality based on a given direction.
+
+    Args:
+        numRows1 (int): The number of rows in the first matrix.
+        numCols1 (int): The number of columns in the first matrix.
+        numRows2 (int): The number of rows in the second matrix.
+        numCols2 (int): The number of columns in the second matrix.
+        direction (str): The direction to compare equality. Can be "same" or "inverse".
+
+    Returns:
+        bool: True if the dimensions are equal according to the specified direction, False otherwise.
+    """
     if (direction == 'same'):
+        """
+        Checks if both matrices have the same dimensions (rows and columns)
+        """
         if (numRows1 == numRows2 and numCols1==numCols2):
             return True
     elif (direction == 'inverse'):
+        """
+        Checks if the number of rows in matrix 1 is equal to the number of columns in matrix 2,
+        and vice versa (for matrix multiplication compatibility)
+        """
         if (numRows1 == numCols2 and numCols1==numRows2):
             return True
     return False
 
 def main():
+    """
+    This function is the entry point of the program. It allows users to perform addition, subtraction, and multiplication operations on sparse matrices.
+    """
     print("Sparse Matrix Operations")
 
     matrixFile1 = input("Enter file path for first matrix: ")
@@ -139,6 +233,21 @@ def main():
 
 
 def loadMatrixFromFile(matrixFilePath):
+    """
+    This function reads a sparse matrix representation from a text file and returns the number of rows, columns, and the matrix data.
+
+    Args:
+        matrixFilePath (str): The path to the text file containing the sparse matrix representation.
+
+    Returns:
+        tuple: A tuple containing three elements -
+            - numRows (int): The number of rows in the matrix.
+            - numCols (int): The number of columns in the matrix.
+            - matrix (list of lists): A 2D list representing the sparse matrix, where non-zero elements are stored.
+
+    Raises:
+        ValueError: If the file cannot be opened or the format is invalid.
+    """
     lines = []
     with open(matrixFilePath, 'r') as file:
         for line in file:
@@ -215,6 +324,13 @@ def loadMatrixFromFile(matrixFilePath):
     return numRows, numCols, matrix
 
 def saveMatrixToFile(matrix, filePath):
+    """
+    This function saves a sparse matrix object to a text file in the specified format.
+
+    Args:
+        matrix (SparseMatrix): The sparse matrix object to save.
+        filePath (str): The path to the output file.
+    """
     with open(filePath, 'w') as file:
         for (row, col), value in matrix.matrix.items():
             file.write(f"({row}, {col}, {value})\n")
